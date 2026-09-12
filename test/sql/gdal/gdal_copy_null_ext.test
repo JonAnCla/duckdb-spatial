@@ -1,0 +1,23 @@
+# name: test/sql/gdal/gdal_copy_null_ext.test
+# description: Regression test for issue #818 - COPY TO with a driver that has no file extension
+# group: [gdal]
+
+require spatial
+
+# Regression test for https://github.com/duckdb/duckdb-spatial/issues/818
+#
+# GDALGetMetadataItem(driver, GDAL_DMD_EXTENSIONS, nullptr) returns NULL for
+# drivers that declare no file extension (e.g. MapML, GeoRSS). The old code
+# passed that NULL straight into StringUtil::Split(), constructing a
+# std::string from nullptr, which aborts the process with:
+#   "basic_string: construction from null is not valid"
+
+statement ok
+COPY (SELECT ST_GeomFromText('POINT (0 0)') AS geom)
+TO '__TEST_DIR__/issue818.mapml'
+(FORMAT GDAL, DRIVER 'MapML');
+
+statement ok
+COPY (SELECT ST_GeomFromText('POINT (0 0)') AS geom)
+TO '__TEST_DIR__/issue818.xml'
+(FORMAT GDAL, DRIVER 'GeoRSS');
