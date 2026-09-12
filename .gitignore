@@ -38,3 +38,4 @@ tmp
 .vscode
 duckdb_unittest_tempdir
 __pycache__
+.cache/
